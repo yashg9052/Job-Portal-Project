@@ -90,7 +90,7 @@ export const postRegisterUser = async (req, res) => {
     role,
     provider,
   });
-
+  
   const user_authenticated = await authenticateUser(req, res, user._id);
   if (!user_authenticated) {
     return res.status(500).json({ error: "Error in authentication" });

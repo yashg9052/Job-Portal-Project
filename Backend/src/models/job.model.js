@@ -15,7 +15,7 @@ const job_schema = new mongoose.Schema({
         type:[String],
         required:true,
     },
-    expierence:{
+    experience:{
         type:String,
         required:true,
     },
@@ -37,7 +37,16 @@ const job_schema = new mongoose.Schema({
     status:{
         type:String,
         enum:["OPEN","CLOSED"],
-    default:"OPEN"} },{timestamps:true}
+    default:"OPEN"} ,
+    
+    deleted:{
+        type:Boolean,
+        default:false,
+        deletedAt:{type:Date,default:null}
+    }
+},{timestamps:true}
+    ,
 );
+
 
 export const Job_model=mongoose.model("Job",job_schema);

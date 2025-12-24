@@ -6,6 +6,7 @@ import RecruiterRoute from "./src/routes/Recruiter.route.js";
 import session from "express-session";
 import *  as authmiddlewares from "./src/middlewares/auth.middleware.js";
 import requestIp from "request-ip";
+import ApplicantRoute from "./src/routes/Applicant.route.js";
 dotenv.config();
 
 const app = express();
@@ -26,5 +27,6 @@ app.use("/auth", AuthRoute);
 // Apply authentication middleware for protected routes
 app.use(authmiddlewares.authMiddleware);
 app.use("/recruiter", RecruiterRoute);
+app.use("/applicant", ApplicantRoute);
 
 export default app;

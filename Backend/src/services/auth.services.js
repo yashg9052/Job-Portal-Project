@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 import { session_model } from "../models/session.model.js";
+import { Applicant_model } from "../models/applicant.model.js";
+import { Recruiter_model } from "../models/recruiter.model.js";
 
 export const finduserbyEmail = async (email) => {
   // Logic to find a user by email in the database
@@ -30,15 +32,47 @@ export const verifyPassword = async (hashedPassword, plainPassword) => {
 
 export const createUser = async ({ name, email, password, role, provider }) => {
   // Logic to create a new user in the database
-  const newUser = await User_model.create({
-    name,
-    email,
-    password,
-    role,
-    provider,
-  });
-  console.log("New User Created:", newUser);
-  return newUser;
+  try {
+    const newUser = await User_model.create({
+      name,
+      email,
+      password,
+      role,
+      provider,
+    });
+
+    if (!newUser) {
+      return null;
+    }
+
+    // Create role-specific profile, but don't let profile errors break user creation
+    try {
+      switch (role) {
+        case "applicant":
+          await Applicant_model.create({
+            user_id: newUser._id,
+            email: newUser.email,
+            name: newUser.name,
+          });
+          break;
+        case "recruiter":
+          await Recruiter_model.create({
+            userId: newUser._id,
+            companyName: "",
+          });
+          break;
+        default:
+          break;
+      }
+    } catch (profileError) {
+      console.error("Profile creation failed for role", role, profileError);
+    }
+    
+    return newUser;
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return null;
+  }
 };
 
 export const generateAccessToken = (userId) => {
@@ -49,7 +83,6 @@ export const generateAccessToken = (userId) => {
 };
 
 export const generateRefreshToken = (userId, session_id) => {
-  
   const token = jwt.sign(
     { id: userId, session_id },
     process.env.JWT_REFRESH_SECRET_KEY,
@@ -60,7 +93,6 @@ export const generateRefreshToken = (userId, session_id) => {
   return token;
 };
 export const createsession = async (req, userId) => {
-  
   const session = await session_model.create({
     user: userId,
     userAgent: req.headers["user-agent"] || "",
@@ -72,7 +104,10 @@ export const createsession = async (req, userId) => {
 export const authenticateUser = async (req, res, id, role) => {
   try {
     // Revoke any existing active sessions for this user to rotate sessions on new authentication
-    await session_model.updateMany({ user: id, revoked: false }, { $set: { revoked: true } });
+    await session_model.updateMany(
+      { user: id, revoked: false },
+      { $set: { revoked: true } }
+    );
 
     const session = await createsession(req, id);
     const access_token = generateAccessToken(id);
@@ -95,4 +130,3 @@ export const authenticateUser = async (req, res, id, role) => {
     console.error("Error in authentication:", error);
   }
 };
-
