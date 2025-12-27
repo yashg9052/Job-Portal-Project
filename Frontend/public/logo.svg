@@ -1,0 +1,60 @@
+<svg
+  width="48"
+  height="48"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Background -->
+  <rect
+    x="4"
+    y="4"
+    width="40"
+    height="40"
+    rx="14"
+    fill="url(#grad)"
+  />
+
+  <!-- Stylized H -->
+  <path
+    d="M16 14V34"
+    stroke="white"
+    stroke-width="3"
+    stroke-linecap="round"
+  />
+  <path
+    d="M32 14V34"
+    stroke="white"
+    stroke-width="3"
+    stroke-linecap="round"
+  />
+  <path
+    d="M16 24H32"
+    stroke="white"
+    stroke-width="3"
+    stroke-linecap="round"
+  />
+
+  <!-- Growth notch -->
+  <path
+    d="M24 18L28 14"
+    stroke="white"
+    stroke-width="2.2"
+    stroke-linecap="round"
+  />
+
+  <!-- Gradient -->
+  <defs>
+    <linearGradient
+      id="grad"
+      x1="4"
+      y1="4"
+      x2="44"
+      y2="44"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop stop-color="#6D4BFF" />
+      <stop offset="1" stop-color="#5B3BFF" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -60,6 +60,7 @@ export const getLogoutUser = (req, res) => {
 };
 
 export const postRegisterUser = async (req, res) => {
+  
   const result = registerUserSchema.safeParse(req.body);
 
   if (!result.success) {

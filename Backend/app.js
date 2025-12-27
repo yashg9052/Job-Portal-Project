@@ -7,9 +7,16 @@ import session from "express-session";
 import *  as authmiddlewares from "./src/middlewares/auth.middleware.js";
 import requestIp from "request-ip";
 import ApplicantRoute from "./src/routes/Applicant.route.js";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
