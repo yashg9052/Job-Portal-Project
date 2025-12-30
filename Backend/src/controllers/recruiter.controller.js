@@ -54,6 +54,8 @@ export const postCreateJob = async (req, res) => {
     }
     const recruiterId = req.user._id;
     const parsed = job_schema.safeParse(req.body);
+    
+    
     if (!parsed.success) {
       return res.status(400).json({ error: parsed.error.errors[0].message });
     }
@@ -61,8 +63,10 @@ export const postCreateJob = async (req, res) => {
       ...parsed.data,
       recruiter: recruiterId,
     });
-    return res.status(201).json({ job: newJob });
+
+    return res.status(201).json({ message:"job created succesfully",job: newJob });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };

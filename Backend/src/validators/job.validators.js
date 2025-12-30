@@ -6,6 +6,7 @@ export const job_schema = z.object({
     skills:z.array(z.string()).min(1),
     experience:z.string().min(1).max(50),
     location:z.string().min(2).max(100),
+    applicantRole:z.string().min(10).max(5000),
     salary:z.object({
         min:z.string().min(1),
         max:z.string().min(1),

@@ -13,6 +13,7 @@ const recruiterSchema = new mongoose.Schema(
 			default: "",
 			trim: true,
 		},
+		
 		companySize: {
 			type: String,
 			default: "",

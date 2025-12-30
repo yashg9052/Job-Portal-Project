@@ -17,6 +17,7 @@ body {
   background-color: black;
   color:white;
 }
+button{cursor:pointer}
 .hero {
   min-height: 100vh;
     background: url(/src/assets/bg.png);

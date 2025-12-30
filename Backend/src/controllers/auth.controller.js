@@ -1,4 +1,5 @@
 import { User_model } from "../models/user.model.js";
+import { Job_model } from "../models/job.model.js";
 import {
   registerUserSchema,
   loginUserSchema,
@@ -91,12 +92,22 @@ export const postRegisterUser = async (req, res) => {
     role,
     provider,
   });
-  
+  const userDetails = {
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  provider: user.provider,
+  createdAt: user.createdAt
+};
+
   const user_authenticated = await authenticateUser(req, res, user._id);
   if (!user_authenticated) {
     return res.status(500).json({ error: "Error in authentication" });
   }
-  return res.status(200).json({ message: "registered successfully" });
+  return res.status(200).json({ message: "registered successfully",
+    user:userDetails
+   });
 };
 
 export const postLoginUser = async (req, res) => {
@@ -127,6 +138,15 @@ export const postLoginUser = async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
   }
+  const userDetails = {
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  provider: user.provider,
+  createdAt: user.createdAt
+};
+
 
   const user_authenticated = await authenticateUser(
     req,
@@ -138,5 +158,19 @@ export const postLoginUser = async (req, res) => {
     return res.status(500).json({ error: "Error in authentication" });
   }
 
-  return res.status(200).json({ message: "Login successful" });
+  return res.status(200).json({ message: "Login successful",user:userDetails });
+};
+
+export const getJobDetails = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    const id = req.params.id;
+    const jobDetails = await Job_model.findOne({ _id: id });
+    return res.status(200).json({ job: jobDetails });
+  } catch (error) {
+    console.error("get job detail error:", error);
+    return res.status(500).json({ error: "Failed to fetch job detail" });
+  }
 };

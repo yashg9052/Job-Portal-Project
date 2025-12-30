@@ -23,6 +23,11 @@ const job_schema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    applicantRole: {
+			type: String,
+			required:true,
+			trim: true,
+		},
     salary:{
         min:{type:String, required:true},
         max:{type:String, required:true},

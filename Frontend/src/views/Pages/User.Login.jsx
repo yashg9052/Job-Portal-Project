@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import "../styles/Login.css";
+import "../../styles/Login.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../features/slices";
 
 export const UserLoginPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const dispatch=useDispatch();
+  
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -23,7 +26,9 @@ export const UserLoginPage = () => {
         { email, password },
         { withCredentials: true }
       );
-      // console.log(response);
+      dispatch(setUser(response.data.user))
+      
+      
       navigate("/home");
     } catch (err) {
       setError(

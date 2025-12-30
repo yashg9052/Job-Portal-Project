@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import "../styles/Auth.css";
+import "../../styles/Auth.css";
 import { useNavigate } from "react-router-dom";
 
 const companies = [
