@@ -1,21 +1,35 @@
 import React, { useState, useEffect } from "react";
-import "../../styles/JobDetailPage.css";
+import styles from "../../styles/JobDetailPage.module.css";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const JobDetails = () => {
-  const { id } = useParams();
+  const { jobId } = useParams();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [saved, setSaved] = useState(false);
+  const user = JSON.parse(localStorage.getItem("User"));
 
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/auth/browse-jobs/${id}`,
+        // Fetch job details
+        const jobRes = await axios.get(
+          `http://localhost:5000/auth/browse-jobs/${jobId}`,
           { withCredentials: true }
         );
-        setJob(res.data.job);
+        setJob(jobRes.data.job);
+
+        // Fetch saved status
+        const savedRes = await axios.get(
+          `http://localhost:5000/applicant/savejob/${jobId}`,
+          { withCredentials: true }
+        );
+        
+        if (savedRes.data.success) {
+          setSaved(savedRes.data.isSaved);
+        }
       } catch (error) {
         console.error("Failed to fetch job details:", error);
       } finally {
@@ -24,11 +38,11 @@ const JobDetails = () => {
     };
 
     fetchJobDetails();
-  }, [id]);
+  }, [jobId]);
 
   if (loading) {
     return (
-      <div className="job-detail-container">
+      <div className={styles.container}>
         <p>Loading job details...</p>
       </div>
     );
@@ -36,7 +50,7 @@ const JobDetails = () => {
 
   if (!job) {
     return (
-      <div className="job-detail-container">
+      <div className={styles.container}>
         <p>Job not found.</p>
       </div>
     );
@@ -44,11 +58,22 @@ const JobDetails = () => {
 
   const formatSalary = (salary) => {
     if (!salary) return "Not specified";
-    const min = parseInt(salary.min).toLocaleString();
-    const max = parseInt(salary.max).toLocaleString();
-    const currency = salary.currency || "INR";
-    const period = salary.period === "MONTHLY" ? "/month" : "/yr";
-    return `${currency} ${min} - ${max}${period}`;
+    const { min, max, currency, period } = salary;
+    
+    // Handle LPA (Lakhs Per Annum) format
+    if (currency === "LPA") {
+      return `₹${min} - ₹${max} ${currency}`;
+    }
+    
+    // Handle regular INR format
+    const minFormatted = parseInt(min).toLocaleString();
+    const maxFormatted = parseInt(max).toLocaleString();
+    const periodText = period === "MONTHLY" ? "/month" : "/yr";
+    return `${currency} ${minFormatted} - ${maxFormatted}${periodText}`;
+  };
+
+  const handleApplyNow = () => {
+    navigate(`/home/jobs/application/${job._id}`);
   };
 
   const formatDate = (dateString) => {
@@ -61,56 +86,66 @@ const JobDetails = () => {
     if (diffDays === 1) return "Posted 1 day ago";
     return `Posted ${diffDays} days ago`;
   };
+  
+  const handleSave = async () => {
+    try {
+      // Send request to toggle save status
+      const res = await axios.post(
+        `http://localhost:5000/applicant/savejob/${jobId}`,
+        { saved: saved }, // Send current saved state
+        { withCredentials: true }
+      );
+      
+      if (res.data.success) {
+        // Toggle the saved state
+        setSaved(!saved);
+        alert(`Job ${!saved ? "saved" : "unsaved"} successfully!`);
+      } else {
+        alert(`Unable to ${!saved ? "save" : "unsave"} job`);
+      }
+    } catch (error) {
+      console.error("Error toggling save status:", error);
+      alert("Failed to update save status. Please try again.");
+    }
+  };
 
   return (
-    <div className="job-detail-container">
-      {/* Header */}
-      <header className="job-detail-header">
-        <img
-          src="/logo_with_name.svg"
-          alt="Hunto Logo"
-          className="job-header"
-        />
-        <div className="job-detail-user-avatar">
-          <img src="https://via.placeholder.com/40" alt="User" />
-        </div>
-      </header>
-
+    <div className={styles.container}>
       {/* Main Job Card */}
-      <div className="job-detail-card-main">
-        <div className="job-detail-job-header">
-          <div className="job-detail-company-info">
-            <div className="job-detail-company-logo">
+      <div className={styles.cardMain} style={{backgroundColor:`${job.color?job.color:"rgb(98 66 255)"}`}}>
+        <div className={styles.jobHeader}>
+          <div className={styles.companyInfo}>
+            <div className={styles.companyLogo}>
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
               </svg>
             </div>
             <div>
-              <h2 className="job-detail-job-title">{job.title}</h2>
-              <p className="job-detail-company-name">{job.location}</p>
+              <h2 className={styles.jobTitle}>{job.title}</h2>
+              <p className={styles.companyName}>{job.location}</p>
             </div>
           </div>
-          <div className="job-detail-salary">{formatSalary(job.salary)}</div>
+          <div className={styles.salary}>{formatSalary(job.salary)}</div>
         </div>
-        <div className="job-detail-job-tags">
-          <span className="job-detail-tag">{job.location}</span>
-          <span className="job-detail-tag">{job.experience}</span>
-          <span className="job-detail-tag">{job.status}</span>
-          <span className="job-detail-tag job-detail-tag-posted">
+        <div className={styles.jobTags}>
+          <span className={styles.tag}>{job.location}</span>
+          <span className={styles.tag}>{job.experience}</span>
+          <span className={styles.tag}>{job.status}</span>
+          <span className={`${styles.tag} ${styles.tagPosted}`}>
             {formatDate(job.createdAt)}
           </span>
         </div>
       </div>
 
       {/* Content Grid */}
-      <div className="job-detail-content-grid">
+      <div className={styles.contentGrid}>
         {/* Left Column */}
-        <div className="job-detail-left-column">
+        <div className={styles.leftColumn}>
           {/* Job Description */}
-          <div className="job-detail-section">
-            <h3 className="job-detail-section-title">
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>
               <svg
-                className="job-detail-icon"
+                className={styles.icon}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -120,14 +155,14 @@ const JobDetails = () => {
               </svg>
               Job Description
             </h3>
-            <p className="job-detail-description-text">{job.description}</p>
+            <p className={styles.descriptionText}>{job.description}</p>
           </div>
 
           {/* Your Role */}
-          <div className="job-detail-section">
-            <h3 className="job-detail-section-title">
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>
               <svg
-                className="job-detail-icon"
+                className={styles.icon}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -137,30 +172,22 @@ const JobDetails = () => {
               </svg>
               Your Role
             </h3>
-            <p className="job-detail-description-text">
-              Your role is a first mattorm a neesident opportunity, lov
-              designer, hed xing professionmont right and process-
-              Intricgraphic, conexany and somalizations. Marketing rucblsi
-              araphic designs. Sholeys help time to develops thennature as
-              amennic designers strewning, and orotinxraphic developning and
-              skill anostaneatrooted dessanor. About backgartendts retalows,
-              maturements and snowrsolving compositive sanoctors.
-            </p>
+            <p className={styles.descriptionText}>{job.applicantRole}</p>
           </div>
 
           {/* Similar Jobs */}
-          <div className="job-detail-section">
-            <h3 className="job-detail-similar-jobs-title">Similar Jobs</h3>
-            <div className="job-detail-similar-jobs-grid">
+          <div className={styles.section}>
+            <h3 className={styles.similarJobsTitle}>Similar Jobs</h3>
+            <div className={styles.similarJobsGrid}>
               {[1, 2, 3].map((item) => (
-                <div key={item} className="job-detail-similar-job-card">
-                  <h4 className="job-detail-similar-job-title">{job.title}</h4>
-                  <p className="job-detail-company-name">{job.location}</p>
-                  <div className="job-detail-job-tags job-detail-job-tags-similar">
-                    <span className="job-detail-tag job-detail-tag-small">
+                <div key={item} className={styles.similarJobCard}>
+                  <h4 className={styles.similarJobTitle}>{job.title}</h4>
+                  <p className={styles.companyName}>{job.location}</p>
+                  <div className={`${styles.jobTags} ${styles.jobTagsSimilar}`}>
+                    <span className={`${styles.tag} ${styles.tagSmall}`}>
                       {job.status}
                     </span>
-                    <span className="job-detail-tag job-detail-tag-small">
+                    <span className={`${styles.tag} ${styles.tagSmall}`}>
                       {job.experience}
                     </span>
                   </div>
@@ -171,12 +198,12 @@ const JobDetails = () => {
         </div>
 
         {/* Right Column */}
-        <div className="job-detail-right-column">
+        <div className={styles.rightColumn}>
           {/* Skills & Requirements */}
-          <div className="job-detail-section job-detail-skills-section">
-            <h3 className="job-detail-section-title">
+          <div className={`${styles.section} ${styles.skillsSection}`}>
+            <h3 className={styles.sectionTitle}>
               <svg
-                className="job-detail-icon"
+                className={styles.icon}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -186,15 +213,15 @@ const JobDetails = () => {
               </svg>
               Skills & Requirements
             </h3>
-            <ul className="job-detail-skills-list">
+            <ul className={styles.skillsList}>
               {job.skills && job.skills.length > 0 ? (
                 job.skills.map((skill, index) => (
-                  <li key={index} className="job-detail-skills-list-item">
+                  <li key={index} className={styles.skillsListItem}>
                     {skill}
                   </li>
                 ))
               ) : (
-                <li className="job-detail-skills-list-item">
+                <li className={styles.skillsListItem}>
                   No specific skills listed
                 </li>
               )}
@@ -202,21 +229,23 @@ const JobDetails = () => {
           </div>
 
           {/* About Spotify */}
-          <div className="job-detail-section job-detail-about-section">
-            <h3 className="job-detail-section-title">About Spotify</h3>
-            <p className="job-detail-about-text">
+          <div className={`${styles.section} ${styles.aboutSection}`}>
+            <h3 className={styles.sectionTitle}>About Spotify</h3>
+            <p className={styles.aboutText}>
               Spotify is an uniquid massikale forbthond shortown product, and
               information. Spotify...
             </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="job-detail-action-buttons">
-            <button className="job-detail-btn-save">Save</button>
-            <button className="job-detail-btn-apply">
+          <div className={styles.actionButtons}>
+            <button className={styles.btnSave} onClick={handleSave}>
+              {saved ? "Saved" : "Save"}
+            </button>
+            <button className={styles.btnApply} onClick={handleApplyNow}>
               Apply Now
               <svg
-                className="job-detail-arrow-icon"
+                className={styles.arrowIcon}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

@@ -29,8 +29,16 @@ RecruiterRoute.route("/update-job/:jobId").put(
   recruiterMiddleware,
   recruiterController.putUpdateJob
 );
-RecruiterRoute.route("/delete-job/:jobId").put(
+RecruiterRoute.route("/delete-job/:jobId").patch(
   recruiterMiddleware,
   recruiterController.deleteJob
+);
+RecruiterRoute.route("/close-job/:jobId").patch(
+  recruiterMiddleware,
+  recruiterController.patchcloseJob
+);
+RecruiterRoute.route("/get-applicants/:jobId").get(
+  recruiterMiddleware,
+  recruiterController.getApplicants
 );
 export default RecruiterRoute;

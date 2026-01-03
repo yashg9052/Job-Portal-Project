@@ -56,9 +56,19 @@ export const createUser = async ({ name, email, password, role, provider }) => {
           });
           break;
         case "recruiter":
+          const randomColor = () => {
+            const hue = Math.floor(Math.random() * 360); // any color
+            const saturation = Math.floor(Math.random() * 30) + 60; // 60–90% (rich)
+            const lightness = Math.floor(Math.random() * 15) + 20; // 20–35% (dark)
+
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+          };
+
           await Recruiter_model.create({
             userId: newUser._id,
-            companyName: "",
+            name: newUser.name,
+            email: newUser.email,
+            color: randomColor(),
           });
           break;
         default:
@@ -67,7 +77,7 @@ export const createUser = async ({ name, email, password, role, provider }) => {
     } catch (profileError) {
       console.error("Profile creation failed for role", role, profileError);
     }
-    
+
     return newUser;
   } catch (error) {
     console.error("Error creating user:", error);

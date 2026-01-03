@@ -13,5 +13,6 @@ export const job_schema = z.object({
         currency:z.string().min(1).optional(),
         period:z.enum(["MONTHLY","YEARLY"]).optional(),
     }),
+    type:z.string().optional()
 });
 

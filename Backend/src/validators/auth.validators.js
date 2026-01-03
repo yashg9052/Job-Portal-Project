@@ -20,12 +20,14 @@ const role = z.enum(["applicant", "recruiter", "admin"], {
 const provider = z.enum(["local", "google"], {
   errorMap: () => ({ message: "Provider must be either local or google" }),
 }).optional();
+
 export const registerUserSchema = z.object({
   name,
   email,
   password,
   role,
   provider,
+ 
   
 });
 

@@ -39,6 +39,10 @@ const applicationSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+     resumePublicId: { 
+    type: String, 
+    required: true 
+  },
 
     status: {
       type: String,

@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 
 export const applicant_schema = mongoose.Schema(
@@ -22,15 +21,21 @@ export const applicant_schema = mongoose.Schema(
       type: [String],
       default: [],
     },
+    savedJobs: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+      ref: "job",
+    },
+
     resume_url: {
       type: String,
       default: "",
     },
-    deleted:{
-        type:Boolean,
-        default:false,
-        deletedAt:{type:Date,default:null}
-    }
+    deleted: {
+      type: Boolean,
+      default: false,
+      deletedAt: { type: Date, default: null },
+    },
   },
   { timestamps: true }
 );

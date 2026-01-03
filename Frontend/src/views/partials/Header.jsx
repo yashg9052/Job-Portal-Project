@@ -1,37 +1,34 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import React from "react";
+import styles from "../../styles/Header.module.css";
 
 const Header = () => {
-   const user = useSelector((state) => state.user);
-   console.log(user)
-  
+  const user = JSON.parse(localStorage.getItem("User"));
+
   return (
-    <header className="header">
-      <div className="header-left">
+    <header className={`${styles.header}`}>
+      <div className={`${styles.headerLeft}`}>
         <img
           src="/logo_with_name.svg"
           alt="Hunto Logo"
-          className="header-logo"
+          className={`${styles.headerLogo}`}
         />
       </div>
-
-      <div className="header-center">
-        <div className="search-bar">
+      <div className={`${styles.headerCenter}`}>
+        <div className={`${styles.searchBar}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <circle cx="11" cy="11" r="8" stroke="#888" strokeWidth="2" />
             <path d="M21 21l-4.35-4.35" stroke="#888" strokeWidth="2" />
           </svg>
           <input type="text" placeholder="Search for company or roles..." />
         </div>
-        <button className="filter-btn">
+        <button className={`${styles.filterBtn}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M3 4h18M6 8h12M9 12h6" stroke="white" strokeWidth="2" />
           </svg>
         </button>
       </div>
-
-      <div className="header-right">
-        <div className="notification">
+      <div className={`${styles.headerRight}`}>
+        <div className={`${styles.notification}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path
               d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
@@ -44,11 +41,11 @@ const Header = () => {
               strokeWidth="2"
             />
           </svg>
-          <span className="notification-badge">1</span>
+          <span className={`${styles.notificationBadge}`}>1</span>
         </div>
-        <div className="user-info">
+        <div className={`${styles.userInfo}`}>
           <span>Hello {user.name} 👋</span>
-          <div className="avatar"></div>
+          <div className={`${styles.avatar}`}></div>
         </div>
       </div>
     </header>

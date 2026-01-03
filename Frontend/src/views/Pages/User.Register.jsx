@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import "../../styles/Register.css";
-import { Link, useNavigate } from "react-router-dom";
+import styles from "../../styles/Register.module.css";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export const UserRegisterPage = () => {
@@ -30,8 +30,12 @@ export const UserRegisterPage = () => {
         { name, email, password, role },
         { withCredentials: true }
       );
-      // console.log(response);
-      navigate("/home");
+      localStorage.setItem("User", JSON.stringify(response.data.user));
+      if (response.data.user.role == "recruiter") {
+        navigate("/recruiter/home");
+      } else {
+        navigate("/home");
+      }
     } catch (err) {
       setError(
         err.response?.data?.message || err.response?.data || "An error occurred"
@@ -41,11 +45,15 @@ export const UserRegisterPage = () => {
   };
 
   return (
-    <div className="register-hero">
-      <div className="auth-card">
-        <img src="/logo_with_name.svg" alt="Hunto Logo" className="logo" />
+    <div className={styles.registerHero}>
+      <div className={styles.authCard}>
+        <img
+          src="/logo_with_name.svg"
+          alt="Hunto Logo"
+          className={styles.logo}
+        />
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className={styles.authForm} onSubmit={handleSubmit}>
           <label>Full Name</label>
           <input name="name" type="text" placeholder="Enter your full name" />
 
@@ -53,14 +61,14 @@ export const UserRegisterPage = () => {
           <input type="email" name="email" placeholder="Enter your email" />
 
           <label>Password</label>
-          <div className="password-input-wrapper">
+          <div className={styles.passwordInputWrapper}>
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Create password"
             />
             <button
               type="button"
-              className="eye-btn"
+              className={styles.eyeBtn}
               aria-label="toggle password visibility"
               onClick={togglePasswordVisibility}
             >
@@ -124,7 +132,7 @@ export const UserRegisterPage = () => {
           </div>
 
           <label>Confirm Password</label>
-          <div className="password-input-wrapper">
+          <div className={styles.passwordInputWrapper}>
             <input
               type={showConfirmPassword ? "text" : "password"}
               name="password"
@@ -132,7 +140,7 @@ export const UserRegisterPage = () => {
             />
             <button
               type="button"
-              className="eye-btn"
+              className={styles.eyeBtn}
               aria-label="toggle confirm password visibility"
               onClick={toggleConfirmPasswordVisibility}
             >
@@ -202,17 +210,17 @@ export const UserRegisterPage = () => {
             <option value="admin">Admin</option>
           </select>
 
-          <button className="primary-btn" type="submit">
+          <button className={styles.primaryBtn} type="submit">
             Register
           </button>
 
           {/* OR divider */}
-          <div className="divider">
+          <div className={styles.divider}>
             <span>OR</span>
           </div>
 
           {/* Google Register */}
-          <button type="button" className="google-btn">
+          <button type="button" className={styles.googleBtn}>
             <img
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
               alt="google"
@@ -220,10 +228,10 @@ export const UserRegisterPage = () => {
             Register with Google
           </button>
 
-          <p className="auth-footer">
+          <p className={styles.authFooter}>
             Already have an account?
             <button
-              className="muted-link"
+              className={styles.mutedLink}
               onClick={() => {
                 navigate("/user/login");
               }}

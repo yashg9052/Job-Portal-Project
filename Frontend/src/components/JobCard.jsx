@@ -1,28 +1,33 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import styles from "../styles/HomePage.module.css";
 
-const JobCard = ({ job }) => {
+const JobCard = ({ job} ) => {
+  
   const {
     _id,
     title,
-    recruiter: company,
+    recruiter,
     createdAt,
     experience,
     description,
     location,
     salary,
+    type,
+    color,
+    logo
+    
   } = job;
+ 
   const navigate = useNavigate();
-
-  const color = "orange-card";
-  const logo = "♫";
+  
   const logoColor = "#1DB954";
-  const type = "Fulltime";
 
   const handleView = (e) => {
     e.stopPropagation();
-    navigate(`/jobs/${_id}`)
+    navigate(`/home/jobs/${_id}`);
   };
+
   const getTimeAgo = (date) => {
     const now = new Date();
     const postedDate = new Date(date);
@@ -40,40 +45,43 @@ const JobCard = ({ job }) => {
     return `${diffInDays} days ago`;
   };
 
-  const formatSalary = (salary) => {
-    if (!salary) return "Not disclosed";
-
-    const { min, max, currency, period } = salary;
-    const formatter = new Intl.NumberFormat("en-IN");
-
-    return `₹${formatter.format(min)} - ₹${formatter.format(
-      max
-    )} / ${period.toLowerCase()}`;
-  };
-
+ const formatSalary = (salary) => {
+  if (!salary) return "Not disclosed";
+  const { min, max, currency, period } = salary;
+  
+  // Handle LPA (Lakhs Per Annum) format
+  if (currency === "LPA") {
+    return `₹${min} - ₹${max} ${currency}`;
+  }
+  
+  // Handle regular INR format with thousand separators
+  const formatter = new Intl.NumberFormat("en-IN");
+  return `₹${formatter.format(min)} - ₹${formatter.format(max)} / ${period.toLowerCase()}`;
+};
   return (
-    <div className={`job-card ${color}`} onClick={handleView}>
-      <div className="job-card-header">
-        <div className="company-logo" style={{ backgroundColor: logoColor }}>
-          {logo}
+    <div className={`${styles.jobCard} `} style={{backgroundColor:color?color:"rgb(98 66 255)"}}onClick={handleView}>
+      <div className={`${styles.jobCardHeader}`}>
+        <div
+          className={`${styles.companyLogo}`}
+          style={{ backgroundColor: logoColor }}
+        >
+          {logo?logo:"."}
         </div>
-
-        <div className="job-title-section">
-          <div className="small-title-section">
+        <div className={`${styles.jobTitleSection}`}>
+          <div className={`${styles.smallTitleSection}`}>
             <h3>{title}</h3>
-            <button className="small-view-btn" onClick={ handleView}>
+            <button className={`${styles.smallViewBtn}`} onClick={handleView}>
               View ↗
             </button>
           </div>
-
-          <p className="company-name">{company}</p>
+          <p className={`${styles.companyName}`}>{recruiter}</p>
         </div>
-
-        <button className="view-btn" onClick={ handleView}>View ↗</button>
+        <button className={`${styles.viewBtn}`} onClick={handleView}>
+          View ↗
+        </button>
       </div>
-
-      <div className="job-tags">
-        <span className="tag">
+      <div className={`${styles.jobTags}`}>
+        <span className={`${styles.tag}`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path
               d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
@@ -83,8 +91,7 @@ const JobCard = ({ job }) => {
           </svg>{" "}
           {location}
         </span>
-
-        <span className="tag">
+        <span className={`${styles.tag}`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <circle
               cx="12"
@@ -96,8 +103,7 @@ const JobCard = ({ job }) => {
           </svg>{" "}
           {experience}
         </span>
-
-        <span className="tag">
+        <span className={`${styles.tag}`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <circle
               cx="12"
@@ -115,11 +121,9 @@ const JobCard = ({ job }) => {
           {type}
         </span>
       </div>
-
-      <p className="job-description">{description}</p>
-
-      <div className="job-footer">
-        <div className="posted-time">
+      <p className={`${styles.jobDescription}`}>{description}</p>
+      <div className={`${styles.jobFooter}`}>
+        <div className={`${styles.postedTime}`}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <circle
               cx="12"
@@ -132,8 +136,7 @@ const JobCard = ({ job }) => {
           </svg>
           Posted {getTimeAgo(createdAt)}
         </div>
-
-        <div className="salary">{formatSalary(salary)}</div>
+        <div className={`${styles.salary}`}>{formatSalary(salary)}</div>
       </div>
     </div>
   );

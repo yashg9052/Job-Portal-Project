@@ -1,0 +1,357 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.dashboardContainer {
+  min-height: 100vh;
+  background-color: #000000;
+  color: #ffffff;
+  display: flex;
+  padding: 40px;
+  gap: 30px;
+  /* align-items: center; */
+  justify-content: center;
+  /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif; */
+}
+
+.mainContent {
+  background-color: lightblue;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.profileCard {
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 30px 50px;
+  width: 70vw;
+  max-width: 900px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  margin: 0 auto 30px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.companyName {
+  font-size: 42px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 30px;
+  letter-spacing: -0.5px;
+}
+
+.infoSection {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.infoText {
+  font-size: 16px;
+  color: #cccccc;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.infoLabel {
+  color: #888888;
+  font-weight: 500;
+}
+
+.editProfileBtn {
+  display: block;
+  margin: 0 auto 50px;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.editProfileBtn:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+}
+
+.editProfileBtn:active {
+  transform: translateY(0);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.statCard {
+  background: rgba(40, 40, 40, 0.5);
+  border-radius: 16px;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.statCardPurple {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1) 0%,
+    rgba(124, 58, 237, 0.05) 100%
+  );
+}
+
+.statCardGreen {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.1) 0%,
+    rgba(21, 128, 61, 0.05) 100%
+  );
+}
+
+.statCardRed {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.1) 0%,
+    rgba(185, 28, 28, 0.05) 100%
+  );
+}
+
+.statIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statIconPurple {
+  background: #8b5cf6;
+  color: white;
+}
+
+.statIconGreen {
+  background: #22c55e;
+  color: white;
+}
+
+.statIconRed {
+  background: #ef4444;
+  color: white;
+}
+
+.statContent {
+  text-align: center;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: #999999;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 36px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.sidebar {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 320px;
+}
+
+.actionBtn {
+  background: rgba(40, 40, 40, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.actionBtn:hover {
+  transform: translateY(-5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.actionBtn:active {
+  transform: translateY(0);
+}
+
+.actionBtnPurple {
+ background-color: #622ae0;
+}
+
+.actionBtnGreen {
+  background-color: #22c55e;
+}
+.actionBtnBlue {
+ background-color: #22c5c5;
+}
+.actionIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Recent Activity Box Styles */
+.recentActivityBox {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 25px;
+  margin-top: 10px;
+}
+
+.activityTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.activityItem {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.activityItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.activityDot {
+  width: 10px;
+  height: 10px;
+  background: #8b5cf6;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.activityContent {
+  flex: 1;
+}
+
+.activityAction {
+  font-size: 15px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.activityJob {
+  font-size: 14px;
+  color: #999999;
+  margin-bottom: 4px;
+}
+
+.activityTime {
+  font-size: 12px;
+  color: #666666;
+}
+
+/* .actionIconPurple {
+  background: #8b5cf6;
+  color: white;
+}
+
+.actionIconGreen {
+  background: #22c55e;
+  color: white;
+}
+.actionIconBlue {
+  background: #22c5c5;
+  color: white;
+} */
+
+@media (max-width: 1024px) {
+  .dashboardContainer {
+    flex-direction: column;
+  }
+  .profileCard {
+    width: 100%;
+  }
+  .sidebar {
+    min-width: 100%;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboardContainer {
+    padding: 20px;
+  }
+
+  .profileCard {
+    padding: 30px 20px;
+  }
+
+  .companyName {
+    font-size: 32px;
+  }
+
+  .actionBtn {
+    padding: 20px;
+  }
+  
+  .recentActivityBox {
+    padding: 20px;
+  }
+  
+  .activityTitle {
+    font-size: 18px;
+  }
+}

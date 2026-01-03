@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import "../../styles/Auth.css";
+import styles from "../../styles/GetStartedPage.module.css";
 import { useNavigate } from "react-router-dom";
 
 const companies = [
@@ -64,46 +64,48 @@ export const GetStartedpage = () => {
         },
         "-=0.4"
       );
-   
-
     },
     { scope: heroRef }
   );
-  const navigate=useNavigate();
-  const handleGetStarted=()=>{
-   navigate("/user/login");
-  }
+
+  const navigate = useNavigate();
+  
+  const handleGetStarted = () => {
+    navigate("/user/login");
+  };
+
   return (
-    <section className="hero" ref={heroRef}>
+    <section className={`${styles.heroSection}`} ref={heroRef}>
       <img
         ref={logoRef}
         src="/logo_with_name.svg"
         alt="Hunto Logo"
-        className="logo"
+        className={`${styles.logoImage}`}
       />
-      <div className="hero-content" ref={contentRef}>
-        <div className="hero-parent">
+      <div className={`${styles.heroContent}`} ref={contentRef}>
+        <div className={`${styles.heroParent}`}>
           <h1>Find your dream job now!</h1>
-        <p>
-          Discover top companies hiring for thousands of jobs. Start your career
-          with us today.
-        </p>
+          <p>
+            Discover top companies hiring for thousands of jobs. Start your career
+            with us today.
+          </p>
         </div>
-        <button className="hero-btn" onClick={handleGetStarted}>Get Started</button>
-        
+        <button className={`${styles.heroButton}`} onClick={handleGetStarted}>
+          Get Started
+        </button>
       </div>
-      <div className="company-wrapper" ref={companiesRef}>
+      <div className={`${styles.companyWrapper}`} ref={companiesRef}>
         {companies.map((company, index) => (
           <div
             key={index}
-            className="company-pill"
+            className={`${styles.companyPill}`}
             style={{
               "--pill-bg": company.color,
               "--pill-text": company.textColor || "#fff",
             }}
           >
-            <span className="company-logo">{company.logo}</span>
-            <span className="company-name">{company.name}</span>
+            <span className={`${styles.companyLogo}`}>{company.logo}</span>
+            <span className={`${styles.companyName}`}>{company.name}</span>
           </div>
         ))}
       </div>

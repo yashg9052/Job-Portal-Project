@@ -1,8 +1,11 @@
 import { Applicant_model } from "../models/applicant.model.js";
 import { application_model } from "../models/job.applications.model.js";
 import { Job_model } from "../models/job.model.js";
+import { v2 as cloudinary } from "cloudinary";
+
+import streamifier from "streamifier";
 import { Recruiter_model } from "../models/recruiter.model.js";
-import { applicationSchema } from "../validators/application.validator.js";
+// import { applicationSchema } from "../validators/application.validator.js";
 
 export const getProfile = async (req, res) => {
   if (!req.user || req.user.role !== "applicant") {
@@ -26,7 +29,7 @@ export const updateProfile = async (req, res) => {
   ).select("-__v -deleted -deletedAt");
   return res.status(200).json({ profile: updatedData });
 };
-export const browseJobs = async (req, res) => {
+export const getbrowseJobs = async (req, res) => {
   if (!req.user || req.user.role !== "applicant") {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -37,6 +40,60 @@ export const browseJobs = async (req, res) => {
     res.status(200).json({ jobs: jobs });
   } catch (error) {
     console.error("Getjobs error:", err);
+    return res.status(500).json({ error: "Failed to fetch jobs" });
+  }
+};
+export const postbrowseJobs = async (req, res) => {
+  if (!req.user || req.user.role !== "applicant") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const { tab } = req.body;
+
+    const applicant = await Applicant_model.findOne({
+      user_id: req.user._id,
+    }).select("_id savedJobs");
+
+    if (!applicant) {
+      return res.status(404).json({ error: "Applicant not found" });
+    }
+
+    const getJobIdsByTab = async (tab) => {
+      switch (tab) {
+        case "Saved":
+          return applicant.savedJobs;
+
+        case "Applied": {
+          const applications = await application_model
+            .find({ applicantId: applicant._id })
+            .select("jobId");
+          return applications.map((app) => app.jobId);
+        }
+
+        case "Closed": {
+          const closedJobs = await Job_model.find({ status: "CLOSED" }).select(
+            "_id"
+          );
+          return closedJobs.map((job) => job._id);
+        }
+
+        default:
+          return null;
+      }
+    };
+
+    const jobIds = await getJobIdsByTab(tab);
+
+    if (!jobIds) {
+      return res.status(400).json({ error: "Invalid tab" });
+    }
+
+    const jobs = await Job_model.find({ _id: { $in: jobIds } });
+
+    res.status(200).json({ jobs });
+  } catch (err) {
+    console.error("Get jobs error:", err);
     return res.status(500).json({ error: "Failed to fetch jobs" });
   }
 };
@@ -121,21 +178,109 @@ export const browseJobsFilter = async (req, res) => {
   }
 };
 
+// export const applyForJob = async (req, res) => {
+//   if (!req.user || req.user.role !== "applicant") {
+//     return res.status(401).json({ error: "Unauthorized" });
+//   }
+//   try {
+//     // 1️⃣ Validate request body using Zod
+//     const { jobId } = req.params;
+
+//     // const resumeUrl = applicationSchema.parse(req.file.buffer);
+//     const applicantId=await Applicant_model.findOne({user_id:req.user["_id"]}).select("_id");
+//     const recruiterId=await Job_model.findOne({_id:jobId}).select("recruiter")
+//     // 2️⃣ Prevent duplicate application (optional but recommended)
+//     const existingApplication = await application_model.findOne({
+//       jobId: jobId,
+//       applicantId: applicantId._id,
+
+//     });
+
+//     if (existingApplication) {
+//       return res.status(409).json({
+//         success: false,
+//         message: "You have already applied for this job",
+//       });
+//     }
+
+//     // 3️⃣ Create application
+//     const application = await application_model.create({
+//       ...validatedData,
+//       jobId: jobId,
+//       applicantId: applicantId._id,
+//       recruiterId:recruiterId._id,
+//       status: "applied",
+//       statusHistory: [
+//         {
+//           status: "applied",
+//         },
+//       ],
+//     });
+
+//     // 4️⃣ Success response
+//     return res.status(201).json({
+//       success: true,
+//       message: "Job applied successfully",
+//       data: application,
+//     });
+//   } catch (error) {
+
+//     // 5️⃣ Zod validation error
+//     if (error.name === "ZodError") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Validation failed",
+//         errors: error.errors,
+//       });
+//     }
+
+//     // 6️⃣ Server error
+//     console.error("Create Application Error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//     });
+//   }
+// };
 export const applyForJob = async (req, res) => {
   if (!req.user || req.user.role !== "applicant") {
     return res.status(401).json({ error: "Unauthorized" });
   }
+
   try {
-    // 1️⃣ Validate request body using Zod
-    const { userId, jobId } = req.params;
-    const validatedData = applicationSchema.parse(req.body);
-    const applicantId=await Applicant_model.findOne({user_id:userId}).select("_id");
-    const recruiterId=await Job_model.findOne({_id:jobId}).select("recruiter")
-    // 2️⃣ Prevent duplicate application (optional but recommended)
+    const { jobId } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Resume file is required",
+      });
+    }
+
+    const applicantId = await Applicant_model.findOne({
+      user_id: req.user["_id"],
+    }).select("_id");
+
+    if (!applicantId) {
+      return res.status(404).json({
+        success: false,
+        message: "Applicant profile not found",
+      });
+    }
+
+    const job = await Job_model.findOne({ _id: jobId }).select("recruiter");
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    // 3️⃣ Prevent duplicate application
     const existingApplication = await application_model.findOne({
       jobId: jobId,
       applicantId: applicantId._id,
-      
     });
 
     if (existingApplication) {
@@ -145,12 +290,37 @@ export const applyForJob = async (req, res) => {
       });
     }
 
-    // 3️⃣ Create application
+    // 4️⃣ Upload resume to Cloudinary
+    const uploadToCloudinary = () => {
+      return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "resumes",
+            resource_type: "raw",
+            public_id: `resume_${applicantId._id}_${Date.now()}`,
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+      });
+    };
+
+    const cloudinaryResult = await uploadToCloudinary();
+
+    // 5️⃣ Create application with resume URL
     const application = await application_model.create({
-      ...validatedData,
       jobId: jobId,
       applicantId: applicantId._id,
-      recruiterId:recruiterId._id,
+      recruiterId: job.recruiter,
+      resumeUrl: cloudinaryResult.secure_url,
+      resumePublicId: cloudinaryResult.public_id,
       status: "applied",
       statusHistory: [
         {
@@ -159,25 +329,109 @@ export const applyForJob = async (req, res) => {
       ],
     });
 
-    // 4️⃣ Success response
+    // 6️⃣ Success response
     return res.status(201).json({
       success: true,
       message: "Job applied successfully",
       data: application,
     });
   } catch (error) {
-    
-    // 5️⃣ Zod validation error
-    if (error.name === "ZodError") {
-      return res.status(400).json({
+    // 7️⃣ Cloudinary upload error
+    if (error.http_code) {
+      return res.status(500).json({
         success: false,
-        message: "Validation failed",
-        errors: error.errors,
+        message: "Resume upload failed",
+        error: error.message,
       });
     }
 
-    // 6️⃣ Server error
+    // 8️⃣ Server error
     console.error("Create Application Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+// Toggle save/unsave job
+export const saveJobForUser = async (req, res) => {
+  if (!req.user || req.user.role !== "applicant") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    const userId = req.user._id;
+    const { jobId } = req.params;
+    const { saved } = req.body;
+
+    const job = await Job_model.findById(jobId);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    // If saved is true, it means job is currently saved, so we need to unsave it
+    // If saved is false, it means job is not saved, so we need to save it
+    const updateQuery = saved
+      ? { $pull: { savedJobs: jobId } } // unsave (remove from array)
+      : { $addToSet: { savedJobs: jobId } }; // save (add to array)
+
+    const user = await Applicant_model.findOneAndUpdate(
+      { user_id: userId },
+      updateQuery,
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: saved ? "Job removed from saved list" : "Job saved successfully",
+      savedJobs: user.savedJobs,
+    });
+  } catch (error) {
+    console.error("Toggle Save Job Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// Check if job is saved by user
+export const checkJobSavedStatus = async (req, res) => {
+  if (!req.user || req.user.role !== "applicant") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    const userId = req.user._id;
+    const { jobId } = req.params;
+
+    const job = await Job_model.findById(jobId);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    const applicant = await Applicant_model.findOne({ user_id: userId }).select("savedJobs");
+    
+    if (!applicant) {
+      return res.status(404).json({
+        success: false,
+        message: "Applicant profile not found",
+      });
+    }
+
+    const isSaved = applicant.savedJobs.includes(jobId);
+
+    return res.status(200).json({
+      success: true,
+      isSaved: isSaved,
+    });
+  } catch (error) {
+    console.error("Check Saved Status Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

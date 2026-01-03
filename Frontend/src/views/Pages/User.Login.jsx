@@ -1,16 +1,13 @@
-import React, { useState } from "react";
-import "../../styles/Login.css";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import styles from "../../styles/Login.module.css";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../../features/slices";
 
 export const UserLoginPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch=useDispatch();
-  
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -26,10 +23,13 @@ export const UserLoginPage = () => {
         { email, password },
         { withCredentials: true }
       );
-      dispatch(setUser(response.data.user))
-      
-      
-      navigate("/home");
+
+      localStorage.setItem("User", JSON.stringify(response.data.user));
+      if (response.data.user.role == "recruiter") {
+        navigate("/recruiter/home");
+      } else {
+        navigate("/home");
+      }
     } catch (err) {
       setError(
         err.response?.data?.message || err.response?.data || "An error occurred"
@@ -39,34 +39,38 @@ export const UserLoginPage = () => {
   };
 
   return (
-    <div className="login-hero ">
-      <div className="hero-inner">
-        <section className="auth-wrapper">
-          <div className="auth-panel">
-            <img src="/logo_with_name.svg" alt="Hunto Logo" className="logo" />
+    <div className={styles.loginHero}>
+      <div className={styles.heroInner}>
+        <section className={styles.authWrapper}>
+          <div className={styles.authPanel}>
+            <img
+              src="/logo_with_name.svg"
+              alt="Hunto Logo"
+              className={styles.logo}
+            />
 
-            <form className="auth-form" onSubmit={handleSubmit}>
-              <label className="form-label">Email</label>
-              <div className="form-group">
+            <form className={styles.authForm} onSubmit={handleSubmit}>
+              <label className={styles.formLabel}>Email</label>
+              <div className={styles.formGroup}>
                 <input
                   type="email"
                   name="email"
                   placeholder="Enter Your Registered Email"
-                  className="form-input"
+                  className={styles.formInput}
                 />
               </div>
 
-              <label className="form-label">Password</label>
-              <div className="form-group password-group">
+              <label className={styles.formLabel}>Password</label>
+              <div className={`${styles.formGroup} ${styles.passwordGroup}`}>
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
-                  className="form-input"
+                  className={styles.formInput}
                   name="password"
                 />
                 <button
                   type="button"
-                  className="eye-btn"
+                  className={styles.eyeBtn}
                   aria-label="toggle password visibility"
                   onClick={togglePasswordVisibility}
                 >
@@ -131,20 +135,23 @@ export const UserLoginPage = () => {
                 </button>
               </div>
 
-              <button className="primary-btn cta-btn" type="submit">
+              <button
+                className={`${styles.primaryBtn} ${styles.ctaBtn}`}
+                type="submit"
+              >
                 Sign-In
               </button>
 
-              <div className="forgot-line">
-                <a className="google-btn">Forgot Password?</a>
+              <div className={styles.forgotLine}>
+                <a className={styles.googleBtn}>Forgot Password?</a>
               </div>
 
-              <div className="divider">
+              <div className={styles.divider}>
                 <span>OR</span>
               </div>
 
-              <button type="button" className="google-btn">
-                <span className="google-logo" aria-hidden>
+              <button type="button" className={styles.googleBtn}>
+                <span className={styles.googleLogo} aria-hidden>
                   <svg
                     width="18"
                     height="18"
@@ -172,9 +179,16 @@ export const UserLoginPage = () => {
                 Sign-in with Google
               </button>
 
-              <p className="signup-line">
+              <p className={styles.signupLine}>
                 Don't have an account? {""}
-                <button className="muted-link" onClick={()=>{navigate("/user/register")}}>Register</button>
+                <button
+                  className={styles.mutedLink}
+                  onClick={() => {
+                    navigate("/user/register");
+                  }}
+                >
+                  Register
+                </button>
               </p>
             </form>
           </div>
